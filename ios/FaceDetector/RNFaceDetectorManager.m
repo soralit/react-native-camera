@@ -5,7 +5,6 @@
 //  Created by Joao Guilherme Daros Fidelis on 21/01/18.
 //
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import <React/RCTConvert.h>
 #import "RNCamera.h"
 #import "RNFaceEncoder.h"
@@ -69,13 +68,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         _faceDetecting = newFaceDetecting;
         [self _runBlockIfQueueIsPresent:^{
             if ([self isDetectingFaces]) {
-                if (_dataOutput) {
-                    [self _setConnectionsEnabled:true];
-                } else {
-                    [self tryEnablingFaceDetection];
-                }
+                [self tryEnablingFaceDetection];
             } else {
-                [self _setConnectionsEnabled:false];
+                [self stopFaceDetection];
             }
         }];
     }
@@ -159,16 +154,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 # pragma mark Private API
-
-- (void)_setConnectionsEnabled:(BOOL)enabled
-{
-    if (!_dataOutput) {
-        return;
-    }
-    for (AVCaptureConnection *connection in _dataOutput.connections) {
-        connection.enabled = enabled;
-    }
-}
 
 - (void)_resetFaceDetector
 {
@@ -273,4 +258,3 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 @end
-#endif

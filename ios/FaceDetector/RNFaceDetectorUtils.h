@@ -5,7 +5,6 @@
 //  Created by Joao Guilherme Daros Fidelis on 21/01/18.
 //
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import <UIKit/UIKit.h>
 #import <CoreMedia/CoreMedia.h>
 #import <Foundation/Foundation.h>
@@ -34,4 +33,3 @@ typedef NS_ENUM(NSInteger, RNFaceDetectionClassifications) {
 + (CGAffineTransform)transformFromDeviceOutput:(GMVDataOutput *)dataOutput toInterfaceVideoOrientation:(AVCaptureVideoOrientation)interfaceVideoOrientation;
 
 @end
-#endif

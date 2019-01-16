@@ -7,7 +7,6 @@
 
 #import "RNFaceEncoder.h"
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #define cDefaultFloatComparisonEpsilon 0.0001
 #define cModEqualFloatsWithEpsilon(dividend, divisor, modulo, epsilon) \
 fabs( fmod(dividend, divisor) - modulo ) < epsilon
@@ -118,4 +117,3 @@ cModEqualFloatsWithEpsilon(dividend, divisor, modulo, cDefaultFloatComparisonEps
 }
 
 @end
-#endif
