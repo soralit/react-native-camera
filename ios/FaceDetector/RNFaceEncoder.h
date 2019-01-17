@@ -6,7 +6,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import <GoogleMobileVision/GoogleMobileVision.h>
 
 @interface RNFaceEncoder : NSObject
@@ -16,4 +15,3 @@
 - (NSDictionary *)encode:(GMVFaceFeature *)face;
 
 @end
-#endif

@@ -6,9 +6,7 @@
 //
 
 #import <React/RCTBridgeModule.h>
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import <GoogleMobileVision/GoogleMobileVision.h>
-#endif
 
 @interface RNFaceDetectorModule : NSObject <RCTBridgeModule>
 @end

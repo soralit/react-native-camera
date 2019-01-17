@@ -14,6 +14,7 @@
 
 @property (nonatomic, weak) RCTCameraManager *manager;
 @property (nonatomic, weak) RCTBridge *bridge;
+@property (nonatomic, strong) RCTCameraFocusSquare *camFocus;
 
 @end
 
@@ -102,10 +103,10 @@
 
 - (void)removeFromSuperview
 {
+  [self.manager stopSession];
   [super removeFromSuperview];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
   [UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
-  [self.manager stopSession];
 }
 
 - (void)orientationChanged:(NSNotification *)notification{
@@ -147,7 +148,7 @@
             @"y": [NSNumber numberWithDouble:touchPoint.y]
           }
         };
-        [self.bridge.eventDispatcher sendAppEventWithName:@"focusChanged" body:event];
+        [self.bridge.eventDispatcher sendInputEventWithName:@"focusChanged" body:event];
 
         // Show animated rectangle on the touched area
         if (_defaultOnFocusComponent) {

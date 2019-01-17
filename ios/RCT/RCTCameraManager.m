@@ -228,6 +228,7 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
         [self.session addInput:captureDeviceInput];
 
         [NSNotificationCenter.defaultCenter removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentCaptureDevice];
+
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
         self.videoCaptureDeviceInput = captureDeviceInput;
         [self setFlashMode];
@@ -298,10 +299,6 @@ RCT_CUSTOM_VIEW_PROPERTY(mirrorImage, BOOL, RCTCamera) {
   self.mirrorImage = [RCTConvert BOOL:json];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(mirrorVideo, BOOL, RCTCamera) {
-    self.mirrorVideo = [RCTConvert BOOL:json];
-}
-
 RCT_CUSTOM_VIEW_PROPERTY(cropToPreview, BOOL, RCTCamera) {
     self.cropToPreview = [RCTConvert BOOL:json];
 }
@@ -329,7 +326,6 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
 - (id)init {
   if ((self = [super init])) {
     self.mirrorImage = false;
-    self.mirrorVideo = false;
 
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
 
@@ -550,8 +546,6 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
     [self.session beginConfiguration];
 
     NSError *error = nil;
-      
-    AVCaptureDevice *currentCaptureDevice = [self.videoCaptureDeviceInput device];
     AVCaptureDevice *captureDevice;
 
     if (type == AVMediaTypeAudio) {
@@ -583,9 +577,6 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
         self.audioCaptureDeviceInput = captureDeviceInput;
       }
       else if (type == AVMediaTypeVideo) {
-        [NSNotificationCenter.defaultCenter removeObserver:self name:AVCaptureDeviceSubjectAreaDidChangeNotification object:currentCaptureDevice];
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:captureDevice];
-          
         self.videoCaptureDeviceInput = captureDeviceInput;
         [self setFlashMode];
       }
@@ -850,10 +841,7 @@ RCT_EXPORT_METHOD(setZoom:(CGFloat)zoomFactor) {
 
   dispatch_async(self.sessionQueue, ^{
     [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:orientation];
-    
-    if (self.mirrorVideo) {
-        [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMirrored:YES];
-    }
+
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
@@ -1026,20 +1014,6 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
 {
   CGPoint devicePoint = CGPointMake(.5, .5);
   [self focusWithMode:AVCaptureFocusModeContinuousAutoFocus exposeWithMode:AVCaptureExposureModeContinuousAutoExposure atDevicePoint:devicePoint monitorSubjectAreaChange:NO];
-    
-  if (self.camera.camFocus)
-  {
-    [self.camera.camFocus removeFromSuperview];
-  }
-  self.camera.camFocus = [[RCTCameraFocusSquare alloc]initWithFrame:CGRectMake([self.view center].x-80, [self.view center].y-80, 160, 160)];
-  [self.camera.camFocus setBackgroundColor:[UIColor clearColor]];
-  [self.view addSubview:self.camera.camFocus];
-  [self.camera.camFocus setNeedsDisplay];
-
-  [UIView beginAnimations:nil context:NULL];
-  [UIView setAnimationDuration:1.0];
-  [self.camera.camFocus setAlpha:0.0];
-  [UIView commitAnimations];
 }
 
 - (void)focusWithMode:(AVCaptureFocusMode)focusMode exposeWithMode:(AVCaptureExposureMode)exposureMode atDevicePoint:(CGPoint)point monitorSubjectAreaChange:(BOOL)monitorSubjectAreaChange
@@ -1090,7 +1064,6 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
                         [device setExposureMode:AVCaptureExposureModeAutoExpose];
                         [device setExposurePointOfInterest:cameraViewPoint];
                     }
-                    [device setSubjectAreaChangeMonitoringEnabled:true];
                     [device unlockForConfiguration];
                 }
             }
@@ -1119,7 +1092,7 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
           @"velocity": [NSNumber numberWithDouble:velocity]
         };
 
-        [self.bridge.eventDispatcher sendAppEventWithName:@"zoomChanged" body:event];
+        [self.bridge.eventDispatcher sendInputEventWithName:@"zoomChanged" body:event];
 
         device.videoZoomFactor = zoomFactor;
         [device unlockForConfiguration];

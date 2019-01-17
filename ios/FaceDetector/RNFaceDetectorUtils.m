@@ -5,7 +5,6 @@
 //  Created by Joao Guilherme Daros Fidelis on 21/01/18.
 //
 
-#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #import "RNCameraUtils.h"
 #import "RNFaceDetectorUtils.h"
 #import "RNFaceDetectorPointTransformCalculator.h"
@@ -76,4 +75,3 @@ NSString *const RNGMVDataOutputHeightKey = @"Height";
 }
 
 @end
-#endif
